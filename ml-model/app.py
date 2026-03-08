@@ -10,7 +10,6 @@ model = joblib.load("password_model.pkl")
 
 
 def extract_features(password):
-
     length = len(password)
 
     has_upper = int(bool(re.search(r'[A-Z]', password)))
@@ -23,10 +22,23 @@ def extract_features(password):
     return [[length, has_upper, has_lower, has_digit, has_special, digit_count]]
 
 
+# Health check route (important for deployment platforms)
+@app.route("/")
+def home():
+    return jsonify({
+        "message": "Password Strength API is running"
+    })
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
 
     data = request.get_json()
+
+    if not data or "password" not in data:
+        return jsonify({
+            "error": "Password is required"
+        }), 400
 
     password = data["password"]
 
@@ -36,11 +48,11 @@ def predict():
 
     return jsonify({
         "password": password,
-        "strength": prediction
+        "strength": str(prediction)
     })
 
 
 # Important for Render deployment
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))   # Render provides PORT automatically
+    port = int(os.environ.get("PORT", 5000))  # Render provides PORT automatically
     app.run(host="0.0.0.0", port=port)
