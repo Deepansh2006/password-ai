@@ -5,7 +5,9 @@ import re
 import os
 
 app = Flask(__name__)
-CORS(app)   # <-- ADD THIS LINE
+
+# Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Load trained model
 model = joblib.load("password_model.pkl")
@@ -29,8 +31,12 @@ def home():
     return jsonify({"message": "Password Strength API is running"})
 
 
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["POST", "OPTIONS"])
 def predict():
+
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+
     data = request.get_json()
 
     if not data or "password" not in data:
