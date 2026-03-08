@@ -5,23 +5,31 @@ import "./App.css";
 function App() {
   const [password, setPassword] = useState("");
   const [strength, setStrength] = useState("");
+  const [score, setScore] = useState(0);
 
   const checkPassword = async () => {
     try {
 
-      // 🔴 CHANGE ONLY THIS URL IF YOUR BACKEND URL CHANGES
       const response = await axios.post(
-        "https://password-ai-2.onrender.com/predict",   // <-- correct endpoint
+        "https://password-ai-2.onrender.com/predict",
         {
           password: password,
         }
       );
 
-      setStrength(response.data.strength);
+      const result = response.data.strength;
+      setStrength(result);
+
+      // Convert strength text → score
+      if (result === "Weak") setScore(30);
+      else if (result === "Medium") setScore(60);
+      else if (result === "Strong") setScore(100);
+      else setScore(0);
 
     } catch (error) {
       console.error(error);
       setStrength("Error checking password");
+      setScore(0);
     }
   };
 
@@ -30,6 +38,13 @@ function App() {
     if (strength === "Medium") return "orange";
     if (strength === "Strong") return "green";
     return "black";
+  };
+
+  const getBarColor = () => {
+    if (score <= 30) return "#ff4d4d";
+    if (score <= 60) return "#ffa500";
+    if (score <= 80) return "#9acd32";
+    return "#28a745";
   };
 
   return (
@@ -49,6 +64,19 @@ function App() {
         />
 
         <button onClick={checkPassword}>Check Strength</button>
+
+        {/* Strength Meter */}
+        {score > 0 && (
+          <div className="meter">
+            <div
+              className="meter-fill"
+              style={{
+                width: `${score}%`,
+                backgroundColor: getBarColor(),
+              }}
+            ></div>
+          </div>
+        )}
 
         {strength && (
           <div className="result">
