@@ -8,11 +8,17 @@ function App() {
 
   const checkPassword = async () => {
     try {
-      const response = await axios.post("https://password-ai-2.onrender.com/check-password", {
-        password: password,
-      });
+
+      // 🔴 CHANGE ONLY THIS URL IF YOUR BACKEND URL CHANGES
+      const response = await axios.post(
+        "https://password-ai-2.onrender.com/predict",   // <-- correct endpoint
+        {
+          password: password,
+        }
+      );
 
       setStrength(response.data.strength);
+
     } catch (error) {
       console.error(error);
       setStrength("Error checking password");
